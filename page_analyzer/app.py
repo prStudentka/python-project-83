@@ -59,7 +59,7 @@ def post_page():
         res = model.add_url(url_name)
         flash('Страница успешно добавлена', 'success')
     else:
-        flash('Страница существует', 'info')
+        flash('Страница уже существует', 'info')
     id = res[0].id
  
     return redirect(url_for('url_id', id=id))
@@ -112,11 +112,11 @@ def checks_id(id):
         try:
             req = requests.get(url['name'])
         except requests.exceptions.RequestException as e:
-            flash('Ошибка при проверке', 'danger')
+            flash('Произошла ошибка при проверке', 'danger')
             return redirect(url_for('url_id', id=id))
         if req.status_code == requests.codes.ok:
             data = get_parse_html(BeautifulSoup(req.content, "html.parser")) 
             data_test = model.create_check(id, req.status_code, data)
-            flash('Успешно проверено', 'success')
+            flash('Страница успешно проверена', 'success')
     return redirect(url_for('url_id', id=id))
 
