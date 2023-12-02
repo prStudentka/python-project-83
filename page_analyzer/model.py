@@ -24,7 +24,7 @@ def get_urls():
 def check_url(name_url):
     connct = psycopg2.connect(DATABASE_URL)
     cursor = connct.cursor(cursor_factory=NamedTupleCursor)
-    query = f"SELECT name FROM urls WHERE name = '{name_url}';"
+    query = f"SELECT id, name FROM urls WHERE name = '{name_url}';"
     cursor.execute(query)
     result = cursor.fetchall()
     cursor.close()

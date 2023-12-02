@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class='alert alert-success' role='alert'></div>
+
+{% for category, message in get_flashed_messages(with_categories=True) %}
+    <div class='alert alert-{{category}}' role='alert'>{{message}}</div>
+{% endfor %}
 <div class="container-lg mt-3">
 	<h1>Сайт: {{content.name}}</h1>
   <div class="table-responsive">

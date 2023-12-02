@@ -2,15 +2,26 @@ import requests
 from flask import Flask, redirect, request, render_template, flash, get_flashed_messages, url_for
 from os import getenv
 from dotenv import load_dotenv
-from .validate import validate_url 
+from validators import url 
 from page_analyzer import model
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
 
+__MAX_LENGTH = 255
 app = Flask(__name__)
 load_dotenv()
 app.config['SECRET_KEY'] = getenv('SECRET_KEY')
+
+
+def validate_url(_url):
+    if not _url:
+        return 'URL обязателен'
+    if len(_url) > __MAX_LENGTH:
+        return 'URL превышает 255 символов'
+    if not url(_url):
+        return 'Некорректный URL'
+    return ''
 
 
 @app.route('/')
@@ -27,9 +38,10 @@ def get_clean_url(url):
 def check_request(url):
     try:
         req = requests.get(url)
-    except Exception as e:
-        return e
-    return req
+    except requests.exceptions.RequestException as e:
+        flash('Ошибка подключения', 'danger')
+        return False
+    return True
         
 
 @app.post('/urls')
@@ -37,15 +49,20 @@ def post_page():
     url = request.form.get('url')
     error = validate_url(url)
     if error:
-        for err in error:
-            flash(err, 'error')
+        flash(error, 'danger')
         return render_template('index.html', messages=error), 422
+    if not check_request(url):
+        return render_template('index.html'), 302
     url_name = get_clean_url(url)
     res = model.check_url(url_name)
     if not res:
         res = model.add_url(url_name)
         flash('Страница успешно добавлена', 'success')
-    return redirect('/urls', code=302)
+    else:
+        flash('Страница существует', 'info')
+    id = res[0].id
+ 
+    return redirect(url_for('url_id', id=id))
 
 
 @app.get('/urls')
@@ -94,11 +111,12 @@ def checks_id(id):
     if url:
         try:
             req = requests.get(url['name'])
-        except Exception as e:
-            print('exception!!!', e)
+        except requests.exceptions.RequestException as e:
+            flash('Ошибка при проверке', 'danger')
             return redirect(url_for('url_id', id=id))
         if req.status_code == requests.codes.ok:
             data = get_parse_html(BeautifulSoup(req.content, "html.parser")) 
             data_test = model.create_check(id, req.status_code, data)
+            flash('Успешно проверено', 'success')
     return redirect(url_for('url_id', id=id))
 
