@@ -51,7 +51,6 @@ def find_id(data_id):
     query = "SELECT * FROM urls WHERE id = %s;"
     cursor.execute(query, (data_id,))
     result = cursor.fetchall()
-    
     cursor.close()
     connct.close()
     if result:
@@ -66,7 +65,6 @@ def find_checks(id):
                ORDER BY id DESC;'''
     cursor.execute(query, (id,))
     result = cursor.fetchall()
-    
     cursor.close()
     connct.close()
     return result
@@ -80,11 +78,11 @@ def create_check(id, code=200, data={}):
         data = {'h1': '', 'title': '', 'description': ''}
     if len(data['description']) > DESCRIPTION_LIMIT:
         text = data['description']
-        data['description'] = text[: DESCRIPTION_LIMIT-3] + '...'
+        data['description'] = text[: DESCRIPTION_LIMIT - 3] + '...'
     query = '''INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at)
                VALUES (%s, %s, %s, %s, %s, %s);'''
     cursor.execute(query, (id, code, data['h1'], data['title'], data['description'], date_now))
-    connct.commit()       
+    connct.commit()
     cursor.close()
     connct.close()
     result = find_checks(id)

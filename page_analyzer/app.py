@@ -2,7 +2,7 @@ import requests
 from flask import Flask, redirect, request, render_template, flash, get_flashed_messages, url_for
 from os import getenv
 from dotenv import load_dotenv
-from validators import url 
+from validators import url
 from page_analyzer import model
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
@@ -58,9 +58,9 @@ def post_page():
 def get_urls():
     content = []
     urls = model.get_urls()
-    for url in urls:
-        id = url.id
-        name = url.name
+    for _url in urls:
+        id = _url.id
+        name = _url.name
         check = model.find_checks(id)
         code = ''
         if check:
@@ -77,7 +77,7 @@ def get_data_by_id(id):
     content = {}
     if data:
         id, name, create_at = data
-        content = {'id':id, 'name': name, 'created_at': create_at}
+        content = {'id': id, 'name': name, 'created_at': create_at}
     return content
 
 
@@ -86,7 +86,7 @@ def url_id(id):
     messages = get_flashed_messages(with_categories=True)
     data_test = model.find_checks(id)
     content = get_data_by_id(id)
-    return render_template('/page.html', content = content, test = data_test, messages=messages)
+    return render_template('/page.html', content=content, test=data_test, messages=messages)
 
 
 def check_empty(elem):
@@ -113,14 +113,13 @@ def checks_id(id):
     if url:
         try:
             req = requests.get(url['name'])
-        except requests.exceptions.RequestException as e:
+        except requests.exceptions.RequestException:
             flash('Произошла ошибка при проверке', 'danger')
             return redirect(url_for('url_id', id=id))
         if req.status_code == requests.codes.ok:
-            data = get_parse_html(BeautifulSoup(req.content, "html.parser")) 
-            data_test = model.create_check(id, req.status_code, data)
+            data = get_parse_html(BeautifulSoup(req.content, "html.parser"))
+            model.create_check(id, req.status_code, data)
             flash('Страница успешно проверена', 'success')
         else:
             flash('Произошла ошибка при проверке', 'danger')
     return redirect(url_for('url_id', id=id))
-
