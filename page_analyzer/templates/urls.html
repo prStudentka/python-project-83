@@ -20,6 +20,12 @@
 	    <td>
 		    <a href="{{ url_for('url_id', id=url.id) }}">{{url.name}}</a>
             </td>
+	    <td>
+		    {{ url.last_check}}
+	    </td>
+	    <td>
+                {{ url.code}}
+            </td>
         </tr>
 	    {% endfor %}
     </tbody>

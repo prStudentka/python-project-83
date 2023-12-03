@@ -61,13 +61,24 @@ def post_page():
     else:
         flash('Страница уже существует', 'info')
     id = res[0].id
- 
     return redirect(url_for('url_id', id=id))
 
 
 @app.get('/urls')
 def get_urls():
-    content = model.get_urls()
+    content = []
+    urls = model.get_urls()
+    for url in urls:
+        id = url.id
+        name = url.name
+        check = model.find_checks(id)
+        code = ''
+        if check:
+            code = check[0].status_code
+            check = check[0].created_at
+        else:
+            check = ''
+        content.append({'id': id, 'name': name, 'last_check': check, 'code': code})
     return render_template('/urls.html', content=content)
 
 
