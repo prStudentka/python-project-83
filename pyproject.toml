@@ -1,8 +1,9 @@
 [tool.poetry]
 name = "hexlet-code"
 version = "0.1.0"
-description = ""
+description = "Web service for checking website"
 authors = ["prStudentka <bk_nvk@mail.ru>"]
+repository = "https://github.com/prStudentka/python-project-83"
 readme = "README.md"
 packages = [{include = "page_analyzer"}]
 
