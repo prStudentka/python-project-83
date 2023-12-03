@@ -51,8 +51,7 @@ def post_page():
     if error:
         flash(error, 'danger')
         return render_template('index.html', messages=error), 422
-    if not check_request(url):
-        return render_template('index.html'), 302
+
     url_name = get_clean_url(url)
     res = model.check_url(url_name)
     if not res:
@@ -93,9 +92,10 @@ def get_data_by_id(id):
 
 @app.get('/urls/<int:id>')
 def url_id(id):
+    messages = get_flashed_messages(with_categories=True)
     data_test = model.find_checks(id)
     content = get_data_by_id(id)
-    return render_template('/page.html', content = content, test = data_test)
+    return render_template('/page.html', content = content, test = data_test, messages=messages)
 
 
 def check_empty(elem):
