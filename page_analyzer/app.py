@@ -35,15 +35,6 @@ def get_clean_url(url):
     return f'{parse.scheme}://{parse.netloc}'
 
 
-def check_request(url):
-    try:
-        req = requests.get(url)
-    except requests.exceptions.RequestException as e:
-        flash('Ошибка подключения', 'danger')
-        return False
-    return True
-        
-
 @app.post('/urls')
 def post_page():
     url = request.form.get('url')
@@ -129,5 +120,7 @@ def checks_id(id):
             data = get_parse_html(BeautifulSoup(req.content, "html.parser")) 
             data_test = model.create_check(id, req.status_code, data)
             flash('Страница успешно проверена', 'success')
+        else:
+            flash('Произошла ошибка при проверке', 'danger')
     return redirect(url_for('url_id', id=id))
 
