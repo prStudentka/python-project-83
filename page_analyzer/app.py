@@ -9,6 +9,8 @@ from bs4 import BeautifulSoup
 
 
 __MAX_LENGTH = 255
+
+
 app = Flask(__name__)
 load_dotenv()
 app.config['SECRET_KEY'] = getenv('SECRET_KEY')
@@ -106,6 +108,13 @@ def check_empty(elem):
     return elem
 
 
+def cut_text(text):
+    if len(text) > __MAX_LENGTH:
+        __tmp = text
+        text = __tmp[: __MAX_LENGTH - 3] + '...'
+    return text
+
+
 def get_parse_html(soup):
     title = soup.title.string
     h1 = []
@@ -113,9 +122,12 @@ def get_parse_html(soup):
         if elem.string is not None:
             h1.append(elem.string)
     content = soup.select_one("meta[name='description']")['content']
+    content = check_empty(content)
+    if content:
+        content = cut_text(content)
     return {'h1': check_empty(h1),
             'title': check_empty(title),
-            'description': check_empty(content)}
+            'description': content}
 
 
 @app.post('/urls/<id>/checks')

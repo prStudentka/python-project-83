@@ -13,7 +13,8 @@ DESCRIPTION_LIMIT = 255
 def get_urls():
     connct = psycopg2.connect(DATABASE_URL)
     cursor = connct.cursor(cursor_factory=NamedTupleCursor)
-    cursor.execute('SELECT * FROM urls ORDER BY id DESC;')
+    query = "SELECT * FROM urls ORDER BY id DESC;"
+    cursor.execute(query)
     result = cursor.fetchall()
     connct.commit()
     cursor.close()
@@ -24,8 +25,8 @@ def get_urls():
 def check_url(name_url):
     connct = psycopg2.connect(DATABASE_URL)
     cursor = connct.cursor(cursor_factory=NamedTupleCursor)
-    query = f"SELECT id, name FROM urls WHERE name = '{name_url}';"
-    cursor.execute(query)
+    query = "SELECT id, name FROM urls WHERE name = %s;"
+    cursor.execute(query, (name_url,))
     result = cursor.fetchall()
     cursor.close()
     connct.close()
@@ -36,8 +37,9 @@ def add_url(name_url):
     connct = psycopg2.connect(DATABASE_URL)
     cursor = connct.cursor(cursor_factory=NamedTupleCursor)
     date_now = date.today()
-    cursor.execute('''INSERT INTO urls (name, created_at)
-                      VALUES (%s, %s);''', (name_url, date_now))
+    query = '''INSERT INTO urls (name, created_at)
+               VALUES (%s, %s);'''
+    cursor.execute(query, (name_url, date_now,))
     connct.commit()
     cursor.close()
     connct.close()
@@ -74,11 +76,6 @@ def create_check(id, code=200, data={}):
     connct = psycopg2.connect(DATABASE_URL)
     cursor = connct.cursor(cursor_factory=NamedTupleCursor)
     date_now = date.today()
-    if not data:
-        data = {'h1': '', 'title': '', 'description': ''}
-    if len(data['description']) > DESCRIPTION_LIMIT:
-        text = data['description']
-        data['description'] = text[: DESCRIPTION_LIMIT - 3] + '...'
     query = '''INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at)
                VALUES (%s, %s, %s, %s, %s, %s);'''
     cursor.execute(query, (id, code, data['h1'], data['title'], data['description'], date_now))
