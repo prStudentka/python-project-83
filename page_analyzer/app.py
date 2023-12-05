@@ -35,6 +35,17 @@ def get_clean_url(url):
     return f'{parse.scheme}://{parse.netloc}'
 
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    # note that we set the 500 status explicitly
+    return render_template('500.html'), 500
+
+
 @app.post('/urls')
 def post_page():
     url = request.form.get('url')
@@ -86,7 +97,7 @@ def url_id(id):
     messages = get_flashed_messages(with_categories=True)
     data_test = model.find_checks(id)
     content = get_data_by_id(id)
-    return render_template('/page.html', content=content, test=data_test, messages=messages)
+    return render_template('/url.html', content=content, test=data_test, messages=messages)
 
 
 def check_empty(elem):

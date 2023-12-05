@@ -1,10 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-{% if messages %}
-    {% for category, message in get_flashed_messages(with_categories=True) %}
-        <div class='alert alert-{{category}}' role='alert'>{{message}}</div>
-    {% endfor %}
-{% endif %}
+
     <div class="container-lg mt-3">
        <h1></h1>
        <div class="row">
