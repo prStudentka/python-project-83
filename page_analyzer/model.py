@@ -1,86 +1,65 @@
-import psycopg2
-from os import getenv
-from dotenv import load_dotenv
 from psycopg2.extras import NamedTupleCursor
 from datetime import date
 
 
-load_dotenv()
-DATABASE_URL = getenv('DATABASE_URL')
 DESCRIPTION_LIMIT = 255
+__STATUS_CODE = 200
+NTC = NamedTupleCursor
 
 
-def get_urls():
-    connct = psycopg2.connect(DATABASE_URL)
-    cursor = connct.cursor(cursor_factory=NamedTupleCursor)
-    query = "SELECT * FROM urls ORDER BY id DESC;"
-    cursor.execute(query)
-    result = cursor.fetchall()
-    connct.commit()
-    cursor.close()
-    connct.close()
+def get_urls(connct):
+    with connct.cursor(cursor_factory=NTC) as cursor:
+        query = "SELECT * FROM urls ORDER BY id DESC;"
+        cursor.execute(query)
+        result = cursor.fetchall()
+        connct.commit()
     return result
 
 
-def check_url(name_url):
-    connct = psycopg2.connect(DATABASE_URL)
-    cursor = connct.cursor(cursor_factory=NamedTupleCursor)
-    query = "SELECT id, name FROM urls WHERE name = %s;"
-    cursor.execute(query, (name_url,))
-    result = cursor.fetchall()
-    cursor.close()
-    connct.close()
+def check_url(connct, name_url):
+    with connct.cursor(cursor_factory=NTC) as cursor:
+        query = "SELECT id, name FROM urls WHERE name = %s;"
+        cursor.execute(query, (name_url,))
+        result = cursor.fetchall()
     return result
 
 
-def add_url(name_url):
-    connct = psycopg2.connect(DATABASE_URL)
-    cursor = connct.cursor(cursor_factory=NamedTupleCursor)
-    date_now = date.today()
-    query = '''INSERT INTO urls (name, created_at)
-               VALUES (%s, %s);'''
-    cursor.execute(query, (name_url, date_now,))
-    connct.commit()
-    cursor.close()
-    connct.close()
-    result = check_url(name_url)
+def add_url(connct, name_url):
+    with connct.cursor(cursor_factory=NTC) as cursor:
+        date_now = date.today()
+        query = '''INSERT INTO urls (name, created_at)
+                   VALUES (%s, %s);'''
+        cursor.execute(query, (name_url, date_now,))
+        connct.commit()
+    result = check_url(connct, name_url)
     return result
 
 
-def find_id(data_id):
-    connct = psycopg2.connect(DATABASE_URL)
-    cursor = connct.cursor(cursor_factory=NamedTupleCursor)
-    query = "SELECT * FROM urls WHERE id = %s;"
-    cursor.execute(query, (data_id,))
-    result = cursor.fetchall()
-    cursor.close()
-    connct.close()
+def find_id(connct, data_id):
+    with connct.cursor(cursor_factory=NTC) as cursor:
+        query = "SELECT * FROM urls WHERE id = %s;"
+        cursor.execute(query, (data_id,))
+        result = cursor.fetchall()
     if result:
         result = result[0]
     return result
 
 
-def find_checks(id):
-    connct = psycopg2.connect(DATABASE_URL)
-    cursor = connct.cursor(cursor_factory=NamedTupleCursor)
-    query = '''SELECT * FROM url_checks WHERE url_id = %s
-               ORDER BY id DESC;'''
-    cursor.execute(query, (id,))
-    result = cursor.fetchall()
-    cursor.close()
-    connct.close()
+def find_checks(connct, id):
+    with connct.cursor(cursor_factory=NTC) as cursor:
+        query = '''SELECT * FROM url_checks WHERE url_id = %s
+                   ORDER BY id DESC;'''
+        cursor.execute(query, (id,))
+        result = cursor.fetchall()
     return result
 
 
-def create_check(id, code=200, data={}):
-    connct = psycopg2.connect(DATABASE_URL)
-    cursor = connct.cursor(cursor_factory=NamedTupleCursor)
-    date_now = date.today()
-    query = '''INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at)
-               VALUES (%s, %s, %s, %s, %s, %s);'''
-    cursor.execute(query, (id, code, data['h1'], data['title'], data['description'], date_now))
-    connct.commit()
-    cursor.close()
-    connct.close()
-    result = find_checks(id)
+def create_check(connct, id, data={}):
+    with connct.cursor(cursor_factory=NTC) as cursor:
+        date_now = date.today()
+        query = '''INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at)
+                   VALUES (%s, %s, %s, %s, %s, %s);'''
+        cursor.execute(query, (id, __STATUS_CODE, data['h1'], data['title'], data['description'], date_now))
+        connct.commit()
+    result = find_checks(connct, id)
     return result
