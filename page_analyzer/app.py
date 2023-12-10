@@ -8,10 +8,10 @@ from page_analyzer import model
 from bs4 import BeautifulSoup
 
 
-app = Flask(__name__)
 load_dotenv()
-app.config['SECRET_KEY'] = getenv('SECRET_KEY')
 __DATABASE_URL = getenv('DATABASE_URL')
+app = Flask(__name__)
+app.config['SECRET_KEY'] = getenv('SECRET_KEY')
 
 
 def get_db():
