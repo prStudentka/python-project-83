@@ -3,13 +3,14 @@
 
 [![Actions Status](https://github.com/prStudentka/python-project-83/workflows/hexlet-check/badge.svg)](https://github.com/prStudentka/python-project-83/actions)
 
-# Анализатор страниц (Page-analyzer)
+# Page-analyzer / Анализатор страниц
 website [Page Analyzer](https://page-analizer.onrender.com/)
 
-# О приложении (About)
-Сервис проверки веб-сайтов
+# About / О приложении
+Service for checking URLs
+/ Сервис проверки веб-сайтов /
 
-# Системные требования (System requirements)
+# System requirements / Системные требования
 - python = "^3.10"
 - flask = "^2.3.3"
 - python-dotenv = "^1.0.0"
@@ -22,10 +23,11 @@ website [Page Analyzer](https://page-analizer.onrender.com/)
 - poetry = "^1.6.1"
 - postgreSQL = "^15.0"
 
-# Как запустить (Install)
+# Install / Как запустить
 1) git clone [Repository](https://github.com/prStudentka/python-project-83)
 2) make install
-3) создать в проекте файл ".env" c переменными:
+3) created in the root directory of the project ".env" with variables:
+   / создать в проекте файл ".env" c переменными:/
    - SECRET_KEY
    - DATABASE_URL
-4) make start
+5) make start
