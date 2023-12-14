@@ -21,10 +21,10 @@
 		    <a href="{{ url_for('url_id', id=url.id) }}">{{url.name}}</a>
             </td>
 	    <td>
-		    {{ url.last_check}}
+		    {{ url.created_at or ''}}
 	    </td>
 	    <td>
-                {{ url.code}}
+                {{ url.status_code or ''}}
             </td>
         </tr>
 	    {% endfor %}

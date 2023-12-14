@@ -1,18 +1,20 @@
 from validators import url
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
 
 
 __MAX_LENGTH = 255
 
 
 def validate_url(_url):
+    errors = []
     if not _url:
-        return 'URL обязателен'
+        errors.append('URL обязателен')
     if len(_url) > __MAX_LENGTH:
-        return 'URL превышает 255 символов'
+        errors.append('URL превышает 255 символов')
     if not url(_url):
-        return 'Некорректный URL'
-    return ''
+        errors.append('Некорректный URL')
+    return errors
 
 
 def check_empty(elem):
@@ -33,7 +35,8 @@ def get_clean_url(url):
     return f'{parse.scheme}://{parse.netloc}'
 
 
-def get_parse_html(soup):
+def get_parse_html(req):
+    soup = BeautifulSoup(req.content, "html.parser")
     title = check_empty(soup.title)
     if title:
         title = title.string
@@ -47,5 +50,6 @@ def get_parse_html(soup):
         content = content['content']
         content = cut_text(content)
     return {'h1': check_empty(h1),
+            'code': req.status_code,
             'title': title,
             'description': content}
