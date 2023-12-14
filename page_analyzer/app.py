@@ -66,11 +66,8 @@ def get_urls():
 def url_id(id):
     messages = get_flashed_messages(with_categories=True)
     content_test = model.find_checks(get_connection(), id)
-    return render_template(
-            '/url.html',
-            content=content_test[0],
-            test=content_test[1],
-            messages=messages)
+    return render_template('/url.html', content=content_test[0],
+                           test=content_test[1], messages=messages)
 
 
 @app.post('/urls/<id>/checks')
