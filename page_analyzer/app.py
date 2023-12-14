@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 from page_analyzer import model
 
 
-
 load_dotenv()
 __DATABASE_URL = getenv('DATABASE_URL')
 app = Flask(__name__)
@@ -68,10 +67,10 @@ def url_id(id):
     messages = get_flashed_messages(with_categories=True)
     content_test = model.find_checks(get_connection(), id)
     return render_template(
-	            '/url.html', 
-	            content=content_test[0],
-				test=content_test[1],
-				messages=messages)
+            '/url.html',
+            content=content_test[0],
+            test=content_test[1],
+            messages=messages)
 
 
 @app.post('/urls/<id>/checks')

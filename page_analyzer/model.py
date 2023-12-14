@@ -7,7 +7,7 @@ def create_conn(g, DATABASE_URL):
     if db is None:
         db = g._database = psycopg2.connect(DATABASE_URL)
     return db
-	
+
 
 def close_conn(g, exception):
     db = getattr(g, '_database', None)
@@ -17,13 +17,13 @@ def close_conn(g, exception):
 
 def get_urls(conn):
     with conn.cursor(cursor_factory=NTC) as cursor:
-        query = '''SELECT u.id, u.name, uc.status_code, uc.created_at FROM urls u 
+        query = '''SELECT u.id, u.name, uc.status_code, uc.created_at FROM urls u
                    FULL JOIN url_checks uc ON u.id =uc.url_id
                    WHERE uc.created_at is NULL or uc.created_at = (
-				        SELECT MAX(created_at) 
-		                FROM url_checks 
-		                WHERE url_id = u.id)
-                   GROUP BY (u.id,u.name, uc.status_code, uc.created_at)   
+                        SELECT MAX(created_at)
+                        FROM url_checks
+                        WHERE url_id = u.id)
+                   GROUP BY (u.id,u.name, uc.status_code, uc.created_at)
                    ORDER BY u.id DESC;'''
         cursor.execute(query)
         result = cursor.fetchall()
