@@ -1,5 +1,5 @@
 import requests
-import page_analyzer.url_controler as ctr
+import page_analyzer._utils as ctr
 from flask import Flask, redirect, request, render_template, flash, get_flashed_messages, url_for, g
 from os import getenv
 from dotenv import load_dotenv
@@ -58,16 +58,25 @@ def post_page():
 
 @app.get('/urls')
 def get_urls():
-    urls = model.get_urls(get_connection())
-    return render_template('/urls.html', content=urls)
+    content = []
+    keys = ('id', 'name', 'created_at', 'status_code')
+    conn = get_connection()
+    urls = model.get_urls(conn)
+    for _url in urls:
+        check = model.find_checks(conn, _url.id)
+        values = (_url.id, _url.name, check.created_at, check.status_code)
+        content.append(dict(zip(keys, values)))
+    return render_template('/urls.html', content=content)
 
 
 @app.get('/urls/<int:id>')
 def url_id(id):
     messages = get_flashed_messages(with_categories=True)
-    content_test = model.find_checks(get_connection(), id)
-    return render_template('/url.html', content=content_test[0],
-                           test=content_test[1], messages=messages)
+    conn = get_connection()
+    checks = model.find_checks(conn, id)
+    content = model.find_id(conn, id)
+    return render_template('/url.html', content=content,
+                           test=checks, messages=messages)
 
 
 @app.post('/urls/<id>/checks')
