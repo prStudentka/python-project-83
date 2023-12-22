@@ -28,7 +28,7 @@ def check_url(conn, name_url):
     with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
         query = "SELECT id, name FROM urls WHERE name = %s;"
         cursor.execute(query, (name_url,))
-        result = cursor.fetchall()
+        result = cursor.fetchone()
     return result
 
 
