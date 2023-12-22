@@ -61,7 +61,7 @@ def find_checks(conn, id):
 
 def create_check(conn, data={}):
     with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
-        query = '''INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at)
+        query = '''INSERT INTO url_checks (url_id, status_code, h1, title, description)
                    VALUES (%s, %s, %s, %s, %s) RETURNING id;'''
         cursor.execute(query, (data['id'], data['code'], data['h1'], data['title'], data['description']))
         conn.commit()

@@ -45,14 +45,14 @@ def post_page():
         flash(error, 'danger')
         return render_template('index.html', messages=error), 422
     url_name = ctr.get_clean_url(url)
-    db = get_connection()
-    res_check = model.check_url(db, url_name)
+    conn = get_connection()
+    res_check = model.check_url(conn, url_name)
     if not res_check:
-        res_check = model.add_url(db, url_name)
+        res_check = model.add_url(conn, url_name)
         flash('Страница успешно добавлена', 'success')
     else:
         flash('Страница уже существует', 'info')
-    id = res_check[0].id
+    id = res_check.id
     return redirect(url_for('url_id', id=id))
 
 
@@ -64,7 +64,10 @@ def get_urls():
     urls = model.get_urls(conn)
     for _url in urls:
         check = model.find_checks(conn, _url.id)
-        values = (_url.id, _url.name, check.created_at, check.status_code)
+        if check:
+            values = (_url.id, _url.name, check[0].created_at, check[0].status_code)
+        else:
+            values = (_url.id, _url.name, '', '')
         content.append(dict(zip(keys, values)))
     return render_template('/urls.html', content=content)
 
