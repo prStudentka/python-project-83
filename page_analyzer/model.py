@@ -42,15 +42,15 @@ def add_url(conn, name_url):
     return result
 
 
-def find_id(conn, data_id):
+def get_url(conn, url_id):
     with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
         query = "SELECT * FROM urls WHERE id = %s;"
-        cursor.execute(query, (data_id,))
+        cursor.execute(query, (url_id,))
         result = cursor.fetchone()
     return result
 
 
-def find_checks(conn, id):
+def get_checks(conn, id):
     with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
         query = '''SELECT * FROM url_checks WHERE url_id = %s
                    ORDER BY id DESC;'''
@@ -67,3 +67,17 @@ def create_check(conn, data={}):
         conn.commit()
         result = cursor.fetchone()
     return result
+
+
+def get_urls_with_checks(conn):
+    content = []
+    keys = ('id', 'name', 'created_at', 'status_code')
+    urls = get_urls(conn)
+    for _url in urls:
+        check = get_checks(conn, _url.id)
+        if check:
+            values = (_url.id, _url.name, check[0].created_at, check[0].status_code)
+        else:
+            values = (_url.id, _url.name, '', '')
+        content.append(dict(zip(keys, values)))
+    return content
