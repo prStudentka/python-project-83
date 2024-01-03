@@ -2,22 +2,17 @@ import psycopg2
 from psycopg2.extras import NamedTupleCursor
 
 
-def create_conn(g, DATABASE_URL):
-    conn = getattr(g, '_database', None)
-    if conn is None:
-        conn = g._database = psycopg2.connect(DATABASE_URL)
-    return conn
+def create_conn(DATABASE_URL):
+    return psycopg2.connect(DATABASE_URL)
 
 
-def close_conn(g, exception):
-    conn = getattr(g, '_database', None)
-    if conn is not None:
-        conn.close()
+def close_conn(conn):
+    conn.close()
 
 
 def get_urls(conn):
     with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
-        query = "SELECT * FROM urls ORDER BY id DESC;"
+        query = '''SELECT * FROM urls ORDER BY id DESC;'''
         cursor.execute(query)
         result = cursor.fetchall()
         conn.commit()
@@ -26,7 +21,7 @@ def get_urls(conn):
 
 def check_url(conn, name_url):
     with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
-        query = "SELECT id, name FROM urls WHERE name = %s;"
+        query = '''SELECT id, name FROM urls WHERE name = %s;'''
         cursor.execute(query, (name_url,))
         result = cursor.fetchone()
     return result
@@ -44,7 +39,7 @@ def add_url(conn, name_url):
 
 def get_url(conn, url_id):
     with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
-        query = "SELECT * FROM urls WHERE id = %s;"
+        query = '''SELECT * FROM urls WHERE id = %s;'''
         cursor.execute(query, (url_id,))
         result = cursor.fetchone()
     return result
@@ -69,15 +64,26 @@ def create_check(conn, data={}):
     return result
 
 
+def get_last_checks(conn):
+    with conn.cursor(cursor_factory=NamedTupleCursor) as cursor:
+        query = '''SELECT DISTINCT ON (url_id) url_id, created_at, status_code FROM url_checks
+                   GROUP BY url_id, created_at, status_code
+                   ORDER BY 1, 2 DESC;'''
+        cursor.execute(query)
+        result = cursor.fetchall()
+    return result
+
+
 def get_urls_with_checks(conn):
     content = []
     keys = ('id', 'name', 'created_at', 'status_code')
     urls = get_urls(conn)
+    checks = get_last_checks(conn)
     for _url in urls:
-        check = get_checks(conn, _url.id)
-        if check:
-            values = (_url.id, _url.name, check[0].created_at, check[0].status_code)
-        else:
-            values = (_url.id, _url.name, '', '')
+        values = [_url.id, _url.name, '', '']
+        for check in checks:
+            if _url.id == check.url_id:
+                values[2] = check.created_at
+                values[3] = check.status_code
         content.append(dict(zip(keys, values)))
     return content

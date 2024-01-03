@@ -13,12 +13,17 @@ app.config['SECRET_KEY'] = getenv('SECRET_KEY')
 
 
 def get_connection():
-    return model.create_conn(g, __DATABASE_URL)
+    conn = getattr(g, '_database', None)
+    if conn is None:
+        conn = g._database = model.create_conn(__DATABASE_URL)
+    return conn
 
 
 @app.teardown_appcontext
 def close_connection(exception):
-    model.close_conn(g, exception)
+    conn = getattr(g, '_database', None)
+    if conn is not None:
+        model.close_conn(conn)
 
 
 @app.route('/')
@@ -52,8 +57,7 @@ def post_page():
         flash('Страница успешно добавлена', 'success')
     else:
         flash('Страница уже существует', 'info')
-    id = res_check.id
-    return redirect(url_for('url_id', id=id))
+    return redirect(url_for('url_id', id=res_check.id))
 
 
 @app.get('/urls')
